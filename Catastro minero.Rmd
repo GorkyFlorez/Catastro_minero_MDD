@@ -1,0 +1,167 @@
+---
+title: "Catastro minero"
+author: "Gorky Florez Castillo"
+date: "20/8/2021"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    social: [ "twitter", "facebook", "whatsapp", "instagram", "telegram", "linkedin", "pinterest" ]
+    source_code: "https://github.com/GorkyFlorez"
+    theme: yeti
+---
+```{r setup, include=FALSE}
+require(pacman)
+pacman::p_load(png,broom,tidyverse,leaflet, leaflet.extras, leaflet.providers,leafem,htmlwidgets, sp,
+               sf,readxl,mapview,RColorBrewer,viridis,Rgb,ggplot2,raster,rmarkdown,flexdashboard,
+               crosstalk, DT,dplyr,htmltools,rgdal, broom,leafem,mapview, Rgb, raster,rmarkdown, 
+               mapedit, tibble, cptcity, openxlsx, ggspatial)
+
+Mineria_MDD <- st_read("SHP/Catastro_minero.shp")
+Mineria_MDD  <- st_transform(Mineria_MDD,crs = st_crs("+proj=longlat +datum=WGS84 +no_defs"))
+#Definiendo el Logo
+m="https://images.vexels.com/media/users/3/143561/isolated/preview/afa3aa927b63061e3b0222b7dab9cdbf-ubicaci--n-n--utica-norte-flecha-vintage-by-vexels.png"
+
+
+polygon_popup <- paste0("<strong>Concesion: </strong>", Mineria_MDD$CONCESION, "<br>",
+                        "<strong>Titutlo: </strong>", Mineria_MDD$TIT_CONCES,"<br>",
+                        "<strong>Area: </strong>", Mineria_MDD$Shape_Area,"<br>",
+                        "<strong>Distritos: </strong>", Mineria_MDD$DISTRI,"<br>",
+                        "<strong>Provincia: </strong>", Mineria_MDD$PROVI,"<br>",
+                        "<strong>Departamento: </strong>", Mineria_MDD$DEPA,"<br>")
+Mineria<- leaflet() %>%
+  addControl(html = "<p><strong><em>Predios Agricolas en Madre de Dios</em></strong></p>",
+             position = "topright")%>%
+  addLogo(m,url = "https://images.vexels.com/media/users/3/143561/isolated/preview/afa3aa927b63061e3b0222b7dab9cdbf-ubicaci--n-n--utica-norte-flecha-vintage-by-vexels.png",
+          position = "topleft",
+          offset.x = 50,
+          offset.y = 10,
+          width = 100,
+          height = 100)%>%
+  addPolygons(data= Mineria_MDD,
+              color = "#444444",
+              fillOpacity = 0.001,
+              weight = 2, 
+              popup = polygon_popup,
+              group = "Mineria_MDD")%>%
+  addLayersControl(baseGroups = c("OSM","Satellite"),
+                   overlayGroups = c("Mineria_MDD"),
+                   position = "topright",
+                   options = layersControlOptions(collapsed = T))%>%
+  addProviderTiles(providers$OpenStreetMap, group = "OSM")%>%
+  addProviderTiles(providers$Esri.WorldImagery, group = "Satellite")%>%
+  addMiniMap(tiles = providers$Esri.WorldImagery,toggleDisplay = TRUE)%>%
+  addScaleBar(position = "bottomright",options = scaleBarOptions(maxWidth = 100,
+                                                               metric = TRUE,
+                                                               imperial = TRUE,
+                                                               updateWhenIdle = TRUE)) %>%
+    addDrawToolbar(targetGroup = "Graficos",editOptions = editToolbarOptions(selectedPathOptions = selectedPathOptions()))%>%
+    addMeasure(position = "topleft",
+               primaryLengthUnit = "meters",
+               primaryAreaUnit = "sqmeters",
+               activeColor = "#3D535D",
+               completedColor = "#7D4479")
+```
+Concesiones Mineras en Madre de Dios 
+===========================================================================
+
+Column {data-width=300}
+---------------------------------------------------------------------------
+
+### 
+\
+**“El sector agrario está duramente golpeado, no tenemos títulos de propiedad. Somos más de 17 mil agricultores que estamos en espera”**, manifestó el presidente de la Federación Departamental de Madre de Dios (FADEMAD), Vidal Salazar, durante su exposición en la XVI Audiencia Pública de la Comisión Agraria del Congreso, realizada en Madre de Dios, el pasado martes 30 de abril.
+
+La carencia de títulos de propiedad y todos los problemas que traen, como la imposibilidad para acceder a créditos agrarios, ser vulnerables ante invasiones de mineros ilegales, inestabilidad jurídica; así como la necesidad de crear una franja agraria, creación o adaptación de programas de créditos agrarios de acuerdo a la realidad de los pequeños agricultores, y la creación de una unidad ejecutora del Instituto Nacional de Innovación agraria (INIA) en Madre de Dios, fueron una constante entre las demandas que formularon los cientos de agricultores que participaron de la audiencia descentralizada.
+
+\
+**FRANJA AGRARIA**
+
+La necesidad de contar con una Franja Agraria en la región Madre de Dios, fue otra de las demandas de la FADEMAD como una forma de reivindicar los derechos adquiridos de los agricultores a lo largo del llamado “corredor minero” y como una forma de evitar que sean presa fácil de la invasión minera ilegal e informal.
+
+En la misma línea la Mesa Técnica Agraria indicó que es necesaria “la creación y declaración de la Franja Agraria de Madre de Dios intangible que garantice la seguridad alimentaria y más en el 2013 que ha sido denominado Año de la Inversión Rural para la Seguridad Alimentaria”.
+\
+**REDISTRIBUCIÓN DEL PRESUPUESTO EN LAS REGIONES**
+\
+Ante los problemas presentados, el presidente regional de Madre de Dios, Jorge Aldazabal Soto, enfatizó que el GOREMAD solo cuenta con un presupuesto de inversión de S/. 95 millones, el más bajo de todo el Perú, siendo una región trifronteriza, y pidió a los congresistas que se proponga una redistribución del canon a nivel nacional.
+\
+“Estamos hablando de inclusión nacional, estamos hablando que todos los pueblos del país deben mejorar, que se debe mejorar la descentralización, estamos hablando de que todos los pueblos se merezcan una mejor calidad de vida pero con 96 millones de soles no lo vamos a poder hacer ni en educación, ni en agricultura”, precisó.
+
+Del mismo modo, el GOREMAD explicó que dentro de su escaso presupuesto están trabajando actualmente un proyecto de inversión destinado a titular a los agricultores cuyo costo se estima en 10 millones de soles, y que al término de 2 meses estará viabilizado pero que requería del apoyo del Congreso ante el Ministerio de Economía y Finanzas para asegurar la aprobación del financiamiento.
+
+Column
+---------------------------------------------------------------------------
+
+### Mapa de Predios Agrarios
+```{r map}
+Mineria
+```
+
+Information {data-orientation=rows data-icon="fa-info-circle"}
+===================================== 
+
+### Información de datos
+
+(Lima, 21 de julio de 2018)-. En el marco del proceso de descentralización para la mejora del nivel de desempeño de los Gobiernos Regionales, mediante Decreto de Urgencia N° 006-2018, se transfirió S/ 6.984.904,00 soles al Gobierno regional de Madre de Dios para la ejecución del Proyecto de Inversión Pública C.U. N° 2234315: “Mejoramiento de la prestación de servicios públicos de la Dirección de Saneamiento Físico Legal de la Propiedad Rural – Dirección Regional de Agricultura, provincia Tambopata (Madre de Dios).
+
+Dicho presupuesto busca la formalización y titulación de 8,500 predios individuales, beneficiando a cerca de 34,000 pobladores rurales, quienes contarán con títulos de propiedad, que les permite gozar de una serie de beneficios entre ellos: seguridad jurídica, acceso a crédito, mayor valoración de sus predios.
+
+Por ello, el accionar del Ministerio de Agricultura y Riego a través de la DIGESPACR, es fortalecer las capacidades del personal del Gobierno regional, con la finalidad de garantizar el cierre de brechas de informalidad de tenencia de tierras en la región.
+
+En este sentido, funcionarios de la Dirección General de Saneamiento de la Propiedad Agraria y Catastro Rural (DIGESPACR), se encuentran en Puerto Maldonado para realizar un trabajo concertado con la región y apoyar en el Plan de Trabajo Estratégico para cumplimiento de metas del Proyecto de Inversión Pública.
+
+Así mismo, se desarrolla un taller teórico práctico para capacitar en la Etapa del Diagnóstico Físico - Legal y Levantamiento Catastral del procedimiento de formalización y titulación de predios rurales individuales
+
+La Dirección General de Saneamiento de la Propiedad Agraria y Catastro Rural (DIGESPACR) del MINAGRI, es el ente rector que promueve la titulación de tierras en el país, que tiene como principal función dictar normas y lineamientos técnicos en materia de saneamiento físico legal y formalización de la propiedad agraria y supervisar su cumplimiento.
+
+Asimismo, presta asistencia técnica a las regiones para ejecutar los procesos de formalización y titulación de la propiedad agraria y de las comunidades campesinas y nativas.
+
+
+
+
+### NOTA BIOGRÁFICA
+
+**Gorky florez Castillo**, nacido en el Departamento del Cusco, Provincia de la Convención, Distrito de Santa Ana el 07 de agosto de 1997. Curso sus estudios primarios en la Institución Educativa Juan de la Cruz Monte Salas y los secundarios en el “Glorioso colegio Emblemático Manco II”, de la ciudad de Quillabamba. 
+
+Bachiller con mención en la Carrera Profesional de Ingeniería Forestal y Medio Ambiente de la Universidad Nacional Amazónica de Madre de Dios el año, desde el 23 de diciembre del 2020. Participación activa en Proyectos de investigación u otras actividades que involucren de nuestros recursos Naturales, a la conservación, a la educación y conciencia ambiental, de esta forma contribuir al desarrollo del departamento de Madre de Dios y mi país.
+
+Realizo un artículo de investigación de caracterización morfológica y estructura poblacional de Euterpe precatoria (Arecaceae) en dos tipos de bosque (bosque de tierra firme y bosque inundable publicado en la revista ecuatoriana Bosques Latitud Cero (Florez-castillo, Nieto-ramos y Garate-quispe 2020).
+
+
+
+### Otra información
+Que es  Google Earth Engine
+Google Earth Engine es una plataforma basada en la nube que permite a los usuarios tener un fácil acceso a un archivo de datos de teledetección a escala de petabytes y ejecutar análisis geoespaciales en la infraestructura de Google. Actualmente, Google ofrece soporte solo para Python y JavaScript. Rgee llenará el vacío comenzando a brindar apoyo a R. A continuación, encontrará la comparación entre la sintaxis de rgee y las dos bibliotecas cliente compatibles con Google.
+
+El repositorio de GitHub y el código subyacente de este panel se pueden encontrar aquí. [here]()
+
+Este dashbaord se desarrolló utilizando [R Studio] (https://www.rstudio.com/) y los siguientes paquetes:
+
+* [RMarkdown](https://rmarkdown.rstudio.com/) para análisis reproducibles en documentos de calidad
+*  [flexdashbaord](https://rmarkdown.rstudio.com/flexdashboard/) para formatear en RMarkdown
+* [DT](https://rstudio.github.io/DT/) para tablas interactivas
+* [crosstalk](https://rstudio.github.io/crosstalk/) para widgets html interactivos en RMarkdown
+
+
+Se presenta otros manuales y ejemplos del uso de Google Earth Engine en RStudio
+
+* [Aviso de friaje - (SENAMHI)](https://gorkyflorez.github.io/Aviso_Friaje_MDD/) 
+*  [NDVI de Yungay](https://gorkyflorez.github.io/Google_Earth_Engine_RStudio_/) 
+* [Calcule la tendencia de las luces nocturnas ](https://gorkyflorez.github.io/luces_nocturnas_GEE/) 
+* [Perdida de la cobertura boscosa en la cuenca chonta](https://gorkyflorez.github.io/Analisis_cambio_cobertura_boscosa_microcuenca_chonta/) 
+
+* [INCREMENTO DE TEMPERATURA DIURNA EN LA SELVA](https://gorkyflorez.github.io/Aviso_SENAMHI_155/) 
+*  [NDVI de Yungay](https://gorkyflorez.github.io/Google_Earth_Engine_RStudio_/) 
+* [Índice de agua de diferencia normalizada Sentinel-2 (NDWI)](https://gorkyflorez.github.io/Google_Earth_Engine_NDWI_Dhaka/) 
+* [NDVI en Git de Madre de Dios 2013-2014](https://gorkyflorez.github.io/GEE_NDVI_MDD_Arequi/) 
+* [Modelo digital de elevación](https://gorkyflorez.github.io/GEE_DEM/) 
+* [Gee no supervizado ](https://gorkyflorez.github.io/GEE_Clasificacion_Puerto_Maldonado/) 
+
+* [Data ](https://rpubs.com/rubenfbc )
+* [Data visualization](https://rpubs.com/rubenfbc/sunburst_treemaps) 
+* [Data visualization 2](https://rpubs.com/rubenfbc/treemaps_2) 
+* [Data visualization 3](https://rpubs.com/rubenfbc/bar_charts) 
+* [Data visualization 4](https://rpubs.com/rubenfbc/nuts_dashboard)
+* [Temas](https://bootswatch.com/flatly/)
+
+
+
